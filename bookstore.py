@@ -1,5 +1,16 @@
 # book store
 
+# to do:
+#     fix WHERE params  (not done)
+#     change | to ,   (done, looks ugly)
+#     encode spaces in author, title
+#     fix get_column_names
+#     pip virtualenv, minimal conda
+#     import JSON file
+#     more tests ?
+#     add SQLAlchemy ?
+#     what else could they want?  don't make too complicated, it will change
+
 from flask import Flask, jsonify, request, abort, session, g
 from psycopg2 import connect as pg_connect
 from json import dumps as json_dumps
@@ -34,8 +45,15 @@ def init_db():
         db.commit()
 
 def get_column_names():
-#   select column_name from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='books';
-    return ['id', 'title', 'author', 'isbn', 'price']  # hard code for now
+#   sql_cmd = "select column_name from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='books';"
+#   cur = g.db.cursor()
+#   cur.execute(sql_cmd)
+#   if cur:
+#       cols = [row for row in cur.fetchall()]
+#       print('sql cols ', cols)
+#   else:
+    cols = ['id', 'title', 'author', 'isbn', 'price']
+    return cols
 # use yield w/ sql once ?
 
 @app.before_request
@@ -70,18 +88,20 @@ def import_books():
 def show_books():
     """show all books, with optional parameter filtering
             e.g. /books/author=Roald%20Dahl&price=6.20"""
+# need %20 for spaces in author (set encoding?)
 
     args = request.args
     column_names = get_column_names()
 
-# works for price but not author w/ spaces, use %20 (need proper encoding)
-# not happy with one bad parameter name, due to WHERE w/ missing args ?
-
     sql_cmd = ["SELECT title, author FROM books"]
     if len(args) > 0:
-        sql_cmd.append(" WHERE ")
         for j, arg in enumerate(args):
-            if arg in column_names:
+            if arg not in column_names:   # return empty list
+                sql_cmd = []
+                break
+            else:
+                if not " WHERE " in sql_cmd:
+                    sql_cmd.append(" WHERE ")
                 sql_cmd.append("%s='%s'" % (arg, args[arg]))
                 if j+1 < len(args):
                     sql_cmd.append(" AND ")
@@ -89,13 +109,13 @@ def show_books():
     sql_cmd = "".join(sql_cmd)
     print('sql_cmd: ', sql_cmd)
 
-    cur = g.db.cursor()
-    cur.execute(sql_cmd)
-    if cur:
-        orders = [dict(title=row[0], author=row[1]) for row in cur.fetchall()]
-    else:
-        orders = []
-    return jsonify({'results': orders})
+    books = []
+    if len(sql_cmd) > 1:
+        cur = g.db.cursor()
+        cur.execute(sql_cmd)
+        if cur:
+            books = [dict(title=row[0], author=row[1]) for row in cur.fetchall()]
+    return jsonify({'results': books})
 
 @app.route('/book/<id>')
 def show_book(id):
@@ -107,10 +127,10 @@ def show_book(id):
     cur = g.db.cursor()
     cur.execute(sql_cmd)
     if cur:
-        orders = [dict(zip(columns, row)) for row in cur.fetchall()]
+        books = [dict(zip(columns, row)) for row in cur.fetchall()]
     else:
-        orders = []
-    return jsonify({'results': orders})
+        books = []
+    return jsonify({'results': books})
 
 if __name__ == '__main__':
     app.run()
