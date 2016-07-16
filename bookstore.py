@@ -1,12 +1,13 @@
 # book store
 
 # to do:
-#     fix WHERE params  (not done)
-#     change | to ,   (done, looks ugly)
 #     encode spaces in author, title
-#     fix get_column_names
+#     fix WHERE params  (done, looks ugly)
+#     change | to ,   (done, looks ugly)
+#     add sql get_column_names  (done)
 #     pip virtualenv, minimal conda
 #     import JSON file
+#     add html response, views
 #     more tests ?
 #     add SQLAlchemy ?
 #     what else could they want?  don't make too complicated, it will change
@@ -15,6 +16,7 @@ from flask import Flask, jsonify, request, abort, session, g
 from psycopg2 import connect as pg_connect
 from json import dumps as json_dumps
 from contextlib import closing
+# import urllib.parse as urllib_parse
 # import pdb
 
 from process_books import parse_books
@@ -49,12 +51,11 @@ def get_column_names():
 #   cur = g.db.cursor()
 #   cur.execute(sql_cmd)
 #   if cur:
-#       cols = [row for row in cur.fetchall()]
+#       cols = [row[0] for row in cur.fetchall()]
 #       print('sql cols ', cols)
 #   else:
     cols = ['id', 'title', 'author', 'isbn', 'price']
     return cols
-# use yield w/ sql once ?
 
 @app.before_request
 def before_request():
@@ -103,6 +104,7 @@ def show_books():
                 if not " WHERE " in sql_cmd:
                     sql_cmd.append(" WHERE ")
                 sql_cmd.append("%s='%s'" % (arg, args[arg]))
+#               sql_cmd.append("%s='%s'" % (arg, urllib_parse.quote(args[arg])))
                 if j+1 < len(args):
                     sql_cmd.append(" AND ")
     sql_cmd.append(";")

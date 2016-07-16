@@ -87,6 +87,7 @@ class TestData(unittest.TestCase):
     def test_author_price_book_found(self):
         self.add_two_books()
         rv = self.app.get('/books?author=Julia%20Donaldson&price=8.23', follow_redirects=True)
+#       rv = self.app.get('/books?author=Julia Donaldson&price=8.23', follow_redirects=True)
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.headers['content-type'], 'application/json')
         rdata = json.loads(rv.data.decode('utf-8'))
