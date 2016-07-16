@@ -36,12 +36,13 @@ def init_db():
 def get_column_names():
 #   select column_name from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='books';
     return ['id', 'title', 'author', 'isbn', 'price']  # hard code for now
+# use yield w/ sql once ?
 
 @app.before_request
 def before_request():
     g.db = connect_db()
 
-def insert_book(book, db):   # rename insert_book(book, db)
+def insert_book(book, db):
     cur = db.cursor()
     cur.execute('insert into books (title, author, isbn, \
                   price) values (%s, %s, %s, %s);', 
