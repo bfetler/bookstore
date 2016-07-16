@@ -5,7 +5,7 @@
 #     fix WHERE params  (done, looks ugly)
 #     change | to ,   (done, looks ugly)
 #     add sql get_column_names  (done)
-#     pip virtualenv, minimal conda
+#     pip virtualenv, minimal conda   (done)
 #     import JSON file
 #     add html response, views
 #     more tests ?
@@ -109,7 +109,7 @@ def show_books():
                     sql_cmd.append(" AND ")
     sql_cmd.append(";")
     sql_cmd = "".join(sql_cmd)
-    print('sql_cmd: ', sql_cmd)
+#   print('sql_cmd: ', sql_cmd)
 
     books = []
     if len(sql_cmd) > 1:
