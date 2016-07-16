@@ -11,7 +11,7 @@ def make_book(header, values):
     book = {}
     for key, val in zip(header, values):
         if key == 'price':
-            price = float(price)
+            val = float(val)
         book[key] = val
     return book
 

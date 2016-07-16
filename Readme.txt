@@ -1,0 +1,51 @@
+Book Store Code Test Readme
+
+Author: B. Fetler
+
+Set Up
+    You'll need a PostgreSQL server running.
+      Create the following databases:
+         createdb bookstore
+         createdb books_test
+
+Tests
+    There are several test files in the main directory.
+    You may run them with:
+        python -m unittest discover
+
+Running the Service
+    The service is written in Flask.  To run it, enter:
+        python bookstore.py
+
+Testing the Service with cURL
+    Some simple tests of the service may be run using curl.
+
+    get books
+        curl -i http://127.0.0.1:5000/books
+        curl -i http://127.0.0.1:5000/books?author=Roald%20Dahl
+        curl -i "http://127.0.0.1:5000/books?author=Roald%20Dahl&price=6.20"
+
+    get a particular book
+        curl -i http://127.0.0.1:5000/book/2
+
+    post a file with books
+        curl -i -H "Content-Type: plain/text" -X POST --data-binary @data/sample_books.csv http://127.0.0.1:5000/books/import
+        curl -i X POST --data-binary @data/sample_books.csv http://127.0.0.1:5000/books/import
+
+    notes:
+      various files were created in data/ for testing
+      --data-binary is specified so as to not strip out carraige returns
+
+Design
+
+    I used PostgreSQL, and the schema is in schema_pg.sql.  
+
+    Resetting the database may be done using:
+        python manage.py initdb
+
+    I added a unique constraint 'id' instead of using a unique 'isbn' parameter, mainly for ease of testing.  
+
+    The main files are bookstore.py and process_books.py.  Books from a post request are inserted into the database one at a time, and committed all at once.  There may be faster options with bulk operations, but this will have to do as a first pass.  
+
+
+

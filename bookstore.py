@@ -57,7 +57,7 @@ def import_books():
     else:     #  plain/text
         data = request.data
         data = data.decode('utf-8')
-#   print('data read:', len(data)>0)
+    print('import data, present %s, length %d' % (len(data)>0, len(data)))
     if len(data) > 0:
         books = parse_books(data)
         for book in books:
@@ -69,10 +69,13 @@ def import_books():
 @app.route('/books')
 def show_books():
     """show all books, with optional parameter filtering
-            e.g. /books/author=Dahl&price=8.00"""
+            e.g. /books/author=Roald%20Dahl&price=6.20"""
 
     args = request.args
     column_names = get_column_names()
+
+# works for price but not author w/ spaces, use %20 (need proper encoding)
+# not happy with one bad parameter name, due to WHERE w/ missing args ?
 
     sql_cmd = ["SELECT title, author FROM books"]
     if len(args) > 0:
@@ -84,6 +87,7 @@ def show_books():
                     sql_cmd.append(" AND ")
     sql_cmd.append(";")
     sql_cmd = "".join(sql_cmd)
+    print('sql_cmd: ', sql_cmd)
 
     cur = g.db.cursor()
     cur.execute(sql_cmd)
