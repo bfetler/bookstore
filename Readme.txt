@@ -23,7 +23,8 @@ Testing the Service with cURL
     get books
         curl -i http://127.0.0.1:5000/books
         curl -i http://127.0.0.1:5000/books?author=Roald%20Dahl
-        curl -i "http://127.0.0.1:5000/books?author=Roald%20Dahl&price=6.20"
+        curl -i http://127.0.0.1:5000/books?author=Roald+Dahl
+        curl -i "http://127.0.0.1:5000/books?author=Roald+Dahl&price=6.20"
 
     get a particular book
         curl -i http://127.0.0.1:5000/book/2

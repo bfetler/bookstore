@@ -85,6 +85,7 @@ def import_books():
 
     return ''
 
+@app.route('/')
 @app.route('/books')
 def show_books():
     """show all books, with optional parameter filtering
