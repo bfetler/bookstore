@@ -40,7 +40,7 @@ class TestData(unittest.TestCase):
         rv = self.app.get('/books')
         rdata = json.loads(rv.data.decode('utf-8'))
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(rv.headers['content-type'], 'application/json')
+        self.assertEqual(rv.headers['content-type'], 'text/html; charset=utf-8')
         self.assertIn('results', str(rv.data))
         self.assertEqual(rdata['results'], [])
 
@@ -62,11 +62,19 @@ class TestData(unittest.TestCase):
             self.assertEqual(rv.status_code, 200)
             self.assertEqual(rv.headers['content-type'], 'text/html; charset=utf-8')
 
+    def test_post_two_json_books(self):
+        lines = '{"data": [{"title": "The Tale of Squirrel Nutkin", "author": "Beatrix Potter", "isbn": "bpo-9833", "price": 7.20}, {"title": "Peter Rabbit", "author": "Beatrix Potter", "isbn": "bpo-204", "price": 7.35}]}'
+        with open(self.data_path, 'w') as fp:
+            fp.write(lines)
+            rv = self.app.post('/books/import', data=self.data_path, follow_redirects=True)
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.headers['content-type'], 'text/html; charset=utf-8')
+
     def test_two_books_found(self):
         self.add_two_books()
         rv = self.app.get('/books', follow_redirects=True)
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(rv.headers['content-type'], 'application/json')
+        self.assertEqual(rv.headers['content-type'], 'text/html; charset=utf-8')
         rdata = json.loads(rv.data.decode('utf-8'))
         self.assertIn('results', str(rv.data))
         self.assertEqual(rdata['results'][0]['title'], 'Horton Hears a Who')
@@ -78,7 +86,7 @@ class TestData(unittest.TestCase):
         self.add_two_books()
         rv = self.app.get('/books?price=5.98', follow_redirects=True)
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(rv.headers['content-type'], 'application/json')
+        self.assertEqual(rv.headers['content-type'], 'text/html; charset=utf-8')
         rdata = json.loads(rv.data.decode('utf-8'))
         self.assertIn('results', str(rv.data))
         self.assertEqual(rdata['results'][0]['title'], 'Horton Hears a Who')
@@ -86,10 +94,9 @@ class TestData(unittest.TestCase):
 
     def test_author_price_book_found(self):
         self.add_two_books()
-        rv = self.app.get('/books?author=Julia%20Donaldson&price=8.23', follow_redirects=True)
-#       rv = self.app.get('/books?author=Julia Donaldson&price=8.23', follow_redirects=True)
+        rv = self.app.get('/books?author=Julia+Donaldson&price=8.23', follow_redirects=True)
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(rv.headers['content-type'], 'application/json')
+        self.assertEqual(rv.headers['content-type'], 'text/html; charset=utf-8')
         rdata = json.loads(rv.data.decode('utf-8'))
         self.assertIn('results', str(rv.data))
         self.assertEqual(rdata['results'][0]['title'], 'Room on the Broom')

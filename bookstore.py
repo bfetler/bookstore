@@ -94,8 +94,8 @@ def show_books():
 
     args = request.args
     column_names = get_column_names()
-    content_type = request.headers.get('Content-Type')
-    print('show books, Content-Type: %s' % content_type)
+#   content_type = request.headers.get('Content-Type')
+#   print('show books, Content-Type: %s' % content_type)
 
     sql_cmd = ["SELECT title, author FROM books"]
     if len(args) > 0:
@@ -126,8 +126,8 @@ def show_books():
 def show_book(id):
     "show book for a particular id"
 
-    content_type = request.headers.get('Content-Type')
-    print('show book, Content-Type: %s' % content_type)
+#   content_type = request.headers.get('Content-Type')
+#   print('show book, Content-Type: %s' % content_type)
     columns = get_column_names()
     sql_cmd = "SELECT * FROM books WHERE id = %s;" % id
 
