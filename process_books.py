@@ -1,10 +1,21 @@
 # methods for processing books
 
-def parse_books(lines):
-    "parse multi-line orders, separated by CR"
-    return parse_books_by_line(lines)
+from json import loads as json_loads
 
-# other alternatives: use pandas?
+def parse_books(lines, content_type='plain/text'):
+    "parse multi-line books"
+    if content_type == 'application/json':
+        return parse_books_by_json(lines)
+    else:
+        return parse_books_by_csv(lines)
+
+# other alternatives for csv: pandas?
+
+def parse_books_by_json(lines):
+    data = json_loads(lines)
+    data = data['data']
+#   books data already in dict format
+    return data
 
 def make_book(header, values):
     "make book from header and values"
@@ -15,8 +26,8 @@ def make_book(header, values):
         book[key] = val
     return book
 
-def parse_books_by_line(text_lines, sep=','):
-    "parse books one line at a time"
+def parse_books_by_csv(text_lines, sep=','):
+    "parse multi-line orders, separated by CR, one line at a time"
     books = []
     lines = text_lines.split('\n')
     if len(lines) > 1:

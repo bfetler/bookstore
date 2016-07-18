@@ -1,16 +1,13 @@
 # book store
 
 # to do:
-#     encode spaces in author, title
-#     fix WHERE params  (done, looks ugly)
-#     change | to ,   (done, looks ugly)
 #     add sql get_column_names  (done)
 #     pip virtualenv, minimal conda   (done)
-#     import JSON file
+#     import JSON file    (done)
 #     add html response, views
 #     more tests ?
 #     add SQLAlchemy ?
-#     what else could they want?  don't make too complicated, it will change
+#     what else ?  don't make too complicated, it will change
 
 from flask import Flask, jsonify, request, abort, session, g
 from psycopg2 import connect as pg_connect
@@ -70,15 +67,18 @@ def insert_book(book, db):
 
 @app.route('/books/import', methods=['POST'])
 def import_books():
+    content_type = request.headers.get('Content-Type')
+    print('import books, Content-Type: %s' % content_type)
+#   print('import books, headers %s' % request.headers.to_list())
     if len(request.form) > 0:
         data = [item for item in request.form]
         data = ''.join(data)
-    else:     #  plain/text
+    else:     #  plain/text, application/json, etc
         data = request.data
         data = data.decode('utf-8')
-    print('import data, present %s, length %d' % (len(data)>0, len(data)))
+#   print('import data, present %s, length %d' % (len(data)>0, len(data)))
     if len(data) > 0:
-        books = parse_books(data)
+        books = parse_books(data, content_type)
         for book in books:
             insert_book(book, g.db)
         g.db.commit()   # commit all books to database
@@ -90,10 +90,12 @@ def import_books():
 def show_books():
     """show all books, with optional parameter filtering
             e.g. /books/author=Roald%20Dahl&price=6.20"""
-# need %20 for spaces in author (set encoding?)
+# need + or %20 for spaces in author (set encoding?)
 
     args = request.args
     column_names = get_column_names()
+    content_type = request.headers.get('Content-Type')
+    print('show books, Content-Type: %s' % content_type)
 
     sql_cmd = ["SELECT title, author FROM books"]
     if len(args) > 0:
@@ -105,7 +107,6 @@ def show_books():
                 if not " WHERE " in sql_cmd:
                     sql_cmd.append(" WHERE ")
                 sql_cmd.append("%s='%s'" % (arg, args[arg]))
-#               sql_cmd.append("%s='%s'" % (arg, urllib_parse.quote(args[arg])))
                 if j+1 < len(args):
                     sql_cmd.append(" AND ")
     sql_cmd.append(";")
@@ -118,12 +119,15 @@ def show_books():
         cur.execute(sql_cmd)
         if cur:
             books = [dict(title=row[0], author=row[1]) for row in cur.fetchall()]
-    return jsonify({'results': books})
+#   return jsonify({'results': books})
+    return json_dumps({'results': books}, indent=4)
 
 @app.route('/book/<id>')
 def show_book(id):
     "show book for a particular id"
 
+    content_type = request.headers.get('Content-Type')
+    print('show book, Content-Type: %s' % content_type)
     columns = get_column_names()
     sql_cmd = "SELECT * FROM books WHERE id = %s;" % id
 
