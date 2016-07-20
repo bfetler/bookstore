@@ -12,6 +12,8 @@ from flask import Flask, jsonify, request, abort, session, g
 from psycopg2 import connect as pg_connect
 from json import dumps as json_dumps
 from contextlib import closing
+import re
+import requests
 # import urllib.parse as urllib_parse
 # import pdb
 
@@ -133,6 +135,32 @@ def show_book(id):
     else:
         books = []
     return jsonify({'results': books})
+
+# e.g. http://isbndb.com/api/books.xml?access_key=12345678&index1=isbn&value1=0596002068
+# http://www.isbndb.com/api/books.xml?access_key=Z&index1=title&value1=Charlie+and
+# /api/books.xml?access_key=Z&results=details&index1=isbn&value1=0061031321
+
+root_url = 'http://www.isbndb.com/'
+isbn_key = '09NAY6M8'
+
+@app.route('/isbn/book/<title>')
+def get_isbn_book(title):
+    "get isbn for a book with title"
+    url = root_url + '/api/books.xml?access_key=%s&index1=title&value1=%s' % (isbn_key, title)
+    print('url', url)
+    r = requests.get(url)
+    print('res', type(r), r)
+    text = r.text
+#   print('text', text)
+    pat = re.compile('isbn="[0-9]+"')
+    p1 = pat.search(r.text)
+    if p1:
+        p1 = p1.group()
+    if p1:
+        p1 = p1[6:-1]
+    print('isbn pat search', p1)
+
+    return ''
 
 if __name__ == '__main__':
     app.run()
