@@ -143,24 +143,41 @@ def show_book(id):
 root_url = 'http://www.isbndb.com/'
 isbn_key = '09NAY6M8'
 
-@app.route('/isbn/book/<title>')
-def get_isbn_book(title):
-    "get isbn for a book with title"
-    url = root_url + '/api/books.xml?access_key=%s&index1=title&value1=%s' % (isbn_key, title)
-    print('url', url)
-    r = requests.get(url)
-    print('res', type(r), r)
-    text = r.text
-#   print('text', text)
-    pat = re.compile('isbn="[0-9]+"')
-    p1 = pat.search(r.text)
-    if p1:
-        p1 = p1.group()
-    if p1:
-        p1 = p1[6:-1]
-    print('isbn pat search', p1)
+@app.route('/isbn/book/<book_id>')
+def get_isbn_book(book_id):
+    "get isbn for a book with given id"
 
-    return ''
+    isbn_str = 'not found'
+    sql_cmd = "SELECT title FROM books WHERE id = %s;" % book_id
+    cur = g.db.cursor()
+    cur.execute(sql_cmd)
+    if cur:
+        title = [row for row in cur.fetchall()]
+        title = '+'.join(title[0][0].split())
+        print('title', title)
+
+        url = root_url + '/api/books.xml?access_key=%s&index1=title&value1=%s' % (isbn_key, title)
+        print('url', url)
+        r = requests.get(url)
+        print('res', type(r), r)
+        text = r.text
+#       print('text', text)
+        pat = re.compile('isbn="[0-9]+"')
+        p1 = pat.search(r.text)
+        if p1:
+            p1 = p1.group()
+            print('isbn pat group', p1)
+        if p1:
+            isbn_str = "'" + p1[6:-1] + "'"
+            print('isbn pat search', isbn_str)
+
+            sql_cmd = "UPDATE books SET isbn=%s WHERE id=%s;" % (isbn_str, book_id)
+            print('sql_cmd', sql_cmd)
+# looks correct but does not change db
+#           cur = g.db.cursor()
+#           cur.execute(sql_cmd)
+
+    return 'isbn %s' % isbn_str
 
 if __name__ == '__main__':
     app.run()
