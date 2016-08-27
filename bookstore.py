@@ -141,8 +141,7 @@ def show_book(id):
 # /api/books.xml?access_key=Z&results=details&index1=isbn&value1=0061031321
 
 root_url = 'http://www.isbndb.com/'
-isbn_key = '09NAY6M8'
-# isbn_key = 'ABCD1234'   # obtain a key from http://www.isbndb.com/
+isbn_key = 'ABCD1234'   # obtain a key from http://www.isbndb.com/
 
 @app.route('/isbn/book/<book_id>')
 def get_isbn_book(book_id):
