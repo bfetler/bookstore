@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "author": "William Shakespeare", 
+      "title": "The Tempest",
+      "isbn": "bpo-9833",
+      "price": 7.20
+    }, 
+    {
+      "author": "William Shakespeare", 
+      "title": "Hamlet",
+      "isbn": "bpo-204",
+      "price": 7.35
+    }
+  ]
+}

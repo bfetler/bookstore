@@ -142,6 +142,7 @@ def show_book(id):
 
 root_url = 'http://www.isbndb.com/'
 isbn_key = '09NAY6M8'
+# isbn_key = 'ABCD1234'   # obtain a key from http://www.isbndb.com/
 
 @app.route('/isbn/book/<book_id>')
 def get_isbn_book(book_id):

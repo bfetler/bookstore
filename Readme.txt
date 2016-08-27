@@ -1,4 +1,4 @@
-Book Store Code Test Readme
+Book Store Readme
 
 Author: B. Fetler
 
